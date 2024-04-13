@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged, Unsubscribe } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export interface IAuthRouteProps {
   children: React.ReactNode;
@@ -9,21 +9,31 @@ export interface IAuthRouteProps {
 const AuthRoute: React.FunctionComponent<IAuthRouteProps> = ({ children }) => {
   const auth = getAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe: Unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribeAuth: Unsubscribe = onAuthStateChanged(auth, (user) => {
+      setLoading(false);
       if (user) {
-        setLoading(false);
-        navigate("/");
+        console.log("User is logged in");
+        if (location.pathname === "/login") {
+          navigate("/");
+        }
       } else {
-        console.log("unauthorized");
-        navigate("/login");
+        console.log("User is not logged in");
+        if (location.pathname !== "/login") {
+          navigate("/login");
+        }
       }
     });
 
-    return () => unsubscribe();
-  }, [auth, navigate]);
+    const unlisten = navigate;
+
+    return () => {
+      unsubscribeAuth();
+    };
+  }, [auth, navigate, location]);
 
   if (loading) return <p>loading ...</p>;
 

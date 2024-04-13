@@ -22,7 +22,14 @@ const Application: React.FunctionComponent<IApplicationProps> = (props) => {
             </AuthRoute>
           }
         />
-        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/login"
+          element={
+            <AuthRoute>
+              <LoginPage />
+            </AuthRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
